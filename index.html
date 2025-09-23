@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Puzzle Mini Juego</title>
+<style>
+  body {
+    font-family: sans-serif;
+    text-align: center;
+    background: #f7f7f7;
+    padding: 30px;
+  }
+  #puzzle {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    gap: 5px;
+    width: max-content;
+    margin: 0 auto 20px;
+    border: 5px solid #ccc;
+    padding: 5px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  .pieza {
+    width: 100px;
+    height: 100px;
+    background-size: 300px 300px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: 2px solid #ddd;
+    transition: all 0.2s;
+  }
+  .pieza:hover {
+    transform: scale(1.05);
+    border-color: #999;
+  }
+  #mensaje {
+    font-size: 18px;
+    font-weight: bold;
+    color: green;
+  }
+</style>
+</head>
+<body>
+
+<h2>Mini Puzzle</h2>
+<p>Haz clic en dos piezas para intercambiarlas y arma la imagen.</p>
+
+<div id="puzzle"></div>
+<div id="mensaje"></div>
+
+<script>
+const filas = 3;
+const columnas = 3;
+const puzzle = document.getElementById('puzzle');
+const mensaje = document.getElementById('mensaje');
+const imagen = 'https://i.postimg.cc/Gtq95nN7/Chat-GPT-Image-7-ago-2025-22-45-44.png'; // Cambia por tu imagen
+let piezas = [];
+let solucion = [];
+let primeraPieza = null;
+
+// Crear piezas y guardar posición original
+for (let i = 0; i < filas * columnas; i++) {
+  let pieza = document.createElement('div');
+  pieza.classList.add('pieza');
+  pieza.style.backgroundImage = `url(${imagen})`;
+  pieza.style.backgroundPosition = `-${(i % columnas) * 100}px -${Math.floor(i / columnas) * 100}px`;
+  pieza.dataset.pos = i; // posición correcta
+  piezas.push(pieza);
+  solucion.push(i);
+}
+
+// Mezclar piezas
+let piezasMezcladas = piezas.slice().sort(() => Math.random() - 0.5);
+
+// Agregar al puzzle
+piezasMezcladas.forEach(p => puzzle.appendChild(p));
+
+// Función para verificar si el puzzle está resuelto
+function verificarSolucion() {
+  const actual = Array.from(puzzle.children).map(p => parseInt(p.dataset.pos));
+  if (actual.join(',') === solucion.join(',')) {
+    mensaje.textContent = "🎉 ¡Lo lograste! Puzzle completado.";
+  } else {
+    mensaje.textContent = "";
+  }
+}
+
+// Evento click
+puzzle.addEventListener('click', e => {
+  if (!e.target.classList.contains('pieza')) return;
+  
+  if (!primeraPieza) {
+    primeraPieza = e.target;
+    primeraPieza.style.borderColor = 'red';
+  } else if (primeraPieza === e.target) {
+    // Click en la misma pieza la deselecciona
+    primeraPieza.style.borderColor = '#ddd';
+    primeraPieza = null;
+  } else {
+    // Intercambiar piezas
+    const tempPos = primeraPieza.style.backgroundPosition;
+    primeraPieza.style.backgroundPosition = e.target.style.backgroundPosition;
+    e.target.style.backgroundPosition = tempPos;
+
+    primeraPieza.style.borderColor = '#ddd';
+    primeraPieza = null;
+
+    verificarSolucion();
+  }
+});
+</script>
+
+</body>
+</html>
